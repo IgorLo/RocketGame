@@ -2,7 +2,7 @@ package com.igorlo.rocketgame.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.igorlo.rocketgame.RocketGame;
+import rocketgame.RocketGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.backgroundFPS = 60;
 		config.foregroundFPS = 60;
 		config.title = "Rocket Landing";
-		config.resizable = false;
+		config.resizable = true;
 		new LwjglApplication(new RocketGame(), config);
 	}
 }
