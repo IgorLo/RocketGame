@@ -9,8 +9,6 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.height = 500;
 		config.width = 800;
-		config.backgroundFPS = 60;
-		config.foregroundFPS = 60;
 		config.title = "Rocket Landing";
 		config.resizable = false;
 		new LwjglApplication(new RocketGame(), config);

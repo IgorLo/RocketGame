@@ -1,5 +1,6 @@
 package rocketgame;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import rocketgame.Screens.MenuGame;
 import rocketgame.Styles.Graphics;
