@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.backgroundFPS = 60;
 		config.foregroundFPS = 60;
 		config.title = "Rocket Landing";
-		config.resizable = true;
+		config.resizable = false;
 		new LwjglApplication(new RocketGame(), config);
 	}
 }

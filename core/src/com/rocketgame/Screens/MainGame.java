@@ -46,7 +46,8 @@ public class MainGame implements com.badlogic.gdx.Screen {
     private SpriteBatch batch;
     private boolean isStarted = false;
     private BitmapFont font;
-    private String counter;
+    private float counter;
+    private String count = "";
     private Dialog dialog;
     private GameOverStyle gameOverStyle;
     private Stage stage;
@@ -93,8 +94,6 @@ public class MainGame implements com.badlogic.gdx.Screen {
 
         font = fontGen.generateFont(parameter);
 
-        counter = "BLALBLALBLABL";
-
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
@@ -127,6 +126,8 @@ public class MainGame implements com.badlogic.gdx.Screen {
 		Gdx.gl.glClearColor(0.55f, 0.4f, 0.43f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        b2dr.render(world, camera.combined.scl(PPM));
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0.3f, 0.15f, 0.15f, 0.1f);
         for (float[] verts: verticies) {
@@ -138,10 +139,10 @@ public class MainGame implements com.badlogic.gdx.Screen {
         playerSprite.setPosition(player.getPosition().x * PPM - playerSprite.getWidth() / 2,
                 player.getPosition().y * PPM - playerSprite.getHeight() / 2);
         playerSprite.draw(batch);
-        font.draw(batch, counter, 10, 490);
+        font.draw(batch, count, 10, 490);
         batch.end();
 
-		b2dr.render(world, camera.combined.scl(PPM));
+
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) game.setScreen(new MenuGame(game));
         if (contactListener.isDead()) {
@@ -161,6 +162,8 @@ public class MainGame implements com.badlogic.gdx.Screen {
             obstacleUpdate(delta);
         }
         timeInSecs += delta;
+        if (!contactListener.isDead()) counter += delta;
+        count = Float.toString(counter);
         player.setTransform(150 / PPM, player.getPosition().y, player.getAngle());
 	    cameraUpdate(delta);
         inputUpdate(delta);
