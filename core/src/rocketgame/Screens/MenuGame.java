@@ -29,15 +29,19 @@ public class MenuGame implements Screen {
 
         ButtonStyle style = new ButtonStyle();
         play = new TextButton("PLAY", style.menuButton());
+        exit = new TextButton("EXIT", style.menuButton());
 
-        play.setPosition((Gdx.graphics.getWidth() / 2 - play.getWidth() / 2), (Gdx.graphics.getHeight() / 2 - play.getHeight() / 2));
+        play.setPosition((Gdx.graphics.getWidth() / 2 - play.getWidth() / 2), (Gdx.graphics.getHeight() / 2 - play.getHeight() / 2) + 40);
+        exit.setPosition((Gdx.graphics.getWidth() / 2 - exit.getWidth() / 2), (Gdx.graphics.getHeight() / 2 - exit.getHeight() / 2) - 40);
 
         stage = new Stage();
         stage.addActor(play);
+        stage.addActor(exit);
         stage.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (play.isChecked()) game.setScreen(new MainGame(game));
+                if (exit.isChecked()) Gdx.app.exit();
                 super.clicked(event, x, y);
             }
         });

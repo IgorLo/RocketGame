@@ -43,7 +43,10 @@ public class MainGame implements com.badlogic.gdx.Screen {
     private float slide;
     private float currentHeight, currentWidth, hRange, wRange, startFreq, maxWidth, minWidth;
     private float timeInSecs;
-    private Sprite playerSprite;
+    private Texture baseTexture = new Texture("base.png");
+    private Texture backgroundTexture = new Texture("background.png");
+    private Sprite playerSprite, baseSprite, background;
+    private Sprite rocket_on, rocket_off;
     private SpriteBatch batch;
     private boolean isStarted = false;
     private BitmapFont font;
@@ -70,8 +73,8 @@ public class MainGame implements com.badlogic.gdx.Screen {
         contactListener = new MyContactListener(world);
         world.setContactListener(contactListener);
 
-        player = createBox(150, 152, 16, 32, false, "PLAYER");
-        platform = createBox(150, 120, 64, 32, true, "PLATFORM");
+        player = createBox(120, 342, 12, 32, false, "PLAYER");
+        platform = createBox(120, 310, 64, 32, true, "PLATFORM");
 
         currentHeight = 250;
         currentWidth = 500;
@@ -79,13 +82,16 @@ public class MainGame implements com.badlogic.gdx.Screen {
         wRange = 25;
         startFreq = 7;
         maxWidth = 200;
-        minWidth = 60;
+        minWidth = 70;
 
         timeInSecs = 0;
 
         batch = new SpriteBatch();
 
-        playerSprite = new Sprite(Graphics.textures.getSprite("rocket_off"));
+        background = new Sprite(backgroundTexture);
+        baseSprite = new Sprite(baseTexture);
+        rocket_off = new Sprite(Graphics.textures.getSprite("rocket_off"));
+        rocket_on = new Sprite(Graphics.textures.getSprite("rocket_on"));
 
         FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -127,26 +133,34 @@ public class MainGame implements com.badlogic.gdx.Screen {
 		Gdx.gl.glClearColor(0.55f, 0.4f, 0.43f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        b2dr.render(world, camera.combined.scl(PPM));
+        batch.begin();
+
+        if (!contactListener.isDead()) background.setPosition(background.getX() - slide / (3.5f * PPM), 0);
+        background.draw(batch);
+
+        playerSprite.setPosition(player.getPosition().x * PPM - playerSprite.getWidth() / 2,
+                                 player.getPosition().y * PPM - playerSprite.getHeight() / 2);
+        playerSprite.draw(batch);
+
+        baseSprite.setPosition(platform.getPosition().x * PPM - 132,
+                               platform.getPosition().y * PPM - 316);
+        baseSprite.draw(batch);
+
+        if (contactListener.isDeparted() && !contactListener.isDead()) font.draw(batch, count, (player.getPosition().x * PPM - 20),
+                                                                                                (player.getPosition().y * PPM - 20));
+        batch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0.3f, 0.15f, 0.15f, 0.1f);
+        shapeRenderer.setColor(0.30f, 0.20f, 0.17f, 0.1f);
         for (float[] verts: verticies) {
             shapeRenderer.triangle(verts[0], verts[1], verts[2], verts[3], verts[4], verts[5]);
         }
         shapeRenderer.end();
 
-        batch.begin();
-        playerSprite.setPosition(player.getPosition().x * PPM - playerSprite.getWidth() / 2,
-                player.getPosition().y * PPM - playerSprite.getHeight() / 2);
-        playerSprite.draw(batch);
-        font.draw(batch, count, 10, 490);
-        batch.end();
-
 
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) game.setScreen(new MenuGame(game));
-        if (contactListener.isDead()) {
+        if (contactListener.isDead() || player.getPosition().y < 0 || player.getPosition().y > 15.5) {
             state = State.GAMEOVER;
         }
         if (state == State.GAMEOVER) {
@@ -163,9 +177,9 @@ public class MainGame implements com.badlogic.gdx.Screen {
             obstacleUpdate(delta);
         }
         timeInSecs += delta;
-        if (!contactListener.isDead()) counter += delta;
-        count = Float.toString(counter);
-        player.setTransform(150 / PPM, player.getPosition().y, player.getAngle());
+        if (!contactListener.isDead() && contactListener.isDeparted()) counter += delta;
+        count = Integer.toString((int) counter);
+        player.setTransform(120 / PPM, player.getPosition().y, player.getAngle());
 	    cameraUpdate(delta);
         inputUpdate(delta);
 	    batch.setProjectionMatrix(camera.combined);
@@ -173,21 +187,14 @@ public class MainGame implements com.badlogic.gdx.Screen {
 
     public void inputUpdate(float delta){
         float horizontalForce = 0;
-        float deltaSlide = 0;
+
+        playerSprite = rocket_off;
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)){
             horizontalForce = 1;
+            playerSprite = rocket_on;
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            deltaSlide = -0.15f;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            deltaSlide = 0.15f;
-        }
-
-        slide += deltaSlide;
         player.setLinearVelocity(player.getLinearVelocity().x, player.getLinearVelocity().y + horizontalForce/1.5f);
     }
 
@@ -267,7 +274,7 @@ public class MainGame implements com.badlogic.gdx.Screen {
 
 	public void cameraUpdate(float delta){
         Vector3 position = camera.position;
-        camera.position.set(position);
+
 
         camera.update();
     }
